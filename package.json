@@ -1,7 +1,7 @@
 {
   "name": "the-tramp",
   "version": "0.0.1",
-  "description": "Chaplin.js on Node.js. Use it for SEO or just because you can ;)",
+  "description": "Chaplin.js on Node.js. Use it for performance boosts, SEO, re-usability.",
   "keywords": [
     "chaplin",
     "backbone",
@@ -19,7 +19,6 @@
     "url": "git://github.com/chrisabrams/the-tramp.git"
   },
   "dependencies": {
-    "backbone": "1.0.0",
     "chaplin": "0.10.0",
     "jquery": "1.8.3",
     "underscore": "1.4.4"
