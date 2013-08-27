@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Test Runner</title>
+    <link rel="stylesheet" href="js/mocha-1.4.2.css" />
+
+    <script src="js/jquery.2.0.0.min.js"></script>
+
+    <script src="js/mocha-1.4.2.js"></script>
+    <script>
+      mocha.setup({ ui: 'bdd', ignoreLeaks: true, timeout: 20000 });
+    </script>
+    <script src="js/expect-0.1.2.js"></script>
+    <script src="js/sinon-1.4.2.js"></script>
+    <script src="js/sinon-expect-d3365d35.js"></script>
+
+    <script src="js/the-tramp.js"></script>
+    <script src="js/test.js"></script>
+
+    <script>
+      window.expect = SinonExpect.enhance(expect, sinon, 'was');
+      $(document).ready(function() {
+
+        if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+            mocha.run();
+        } 
+      });
+
+    </script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="testbed"></div>
+  </body>
+</html>

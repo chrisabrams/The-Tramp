@@ -1,13 +1,17 @@
 {
   "name": "the-tramp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Chaplin.js on Node.js. Use it for performance boosts, SEO, re-usability.",
   "keywords": [
+    "tramp",
     "chaplin",
     "backbone",
     "node",
     "javascript",
-    "seo"
+    "performance",
+    "seo",
+    "re-usability",
+    "reusability"
   ],
   "author": {
     "name": "Chris Abrams",
@@ -23,7 +27,23 @@
     "jquery": "1.8.3",
     "underscore": "1.4.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "coffee-script": "1.6.3",
+    "expect.js": "0.2.0",
+    "grunt": "0.4.1",
+    "grunt-coffeelint": "0.0.7",
+    "grunt-commonjs": "0.2.0rc7",
+    "grunt-contrib-coffee": "0.7.0",
+    "grunt-contrib-concat": "0.3.0",
+    "grunt-contrib-clean": "0.5.0",
+    "grunt-contrib-connect": "0.3.0",
+    "grunt-contrib-uglify": "0.2.2",
+    "grunt-contrib-watch": "0.5.3",
+    "grunt-livereload": "0.1.3",
+    "grunt-mocha": "0.4.1",
+    "grunt-strip": "0.2.1",
+    "mocha": "1.12.0"
+  },
   "engines": {
     "node": "*"
   }
