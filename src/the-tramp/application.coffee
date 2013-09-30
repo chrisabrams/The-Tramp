@@ -1,10 +1,6 @@
 _                       = loader 'underscore'
-Backbone                = loader 'backbone'
 Chaplin                 = loader 'chaplin'
-Collection              = loader 'models/base/collection'
 Layout                  = loader 'views/layout/layout'
-logger                  = loader 'lib/logger'
-mediator                = loader 'mediator'
 Router                  = Chaplin.Router
 routes                  = loader 'routes'
 

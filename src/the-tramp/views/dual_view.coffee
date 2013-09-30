@@ -1,41 +1,43 @@
-###
-getAttributes() and getHtml() inspired from Rendr.
-###
-
 _       = loader 'underscore'
+Chaplin = loader 'chaplin'
 View    = loader 'views/base/view'
 
-# Node
 if typeof window is 'undefined'
 
   fs = require 'fs'
   Handlebars = require('hbs').handlebars
 
-# Browser
 else
   
   Handlebars = window.Handlebars
 
 module.exports = class DualView extends View
-  preRendered: false # Rendered on server-side?
+  preRendered: false
 
   initialize: ->
 
     if typeof window is 'object'
 
-      if @id and $(@id).length > 0
-        @el = "##{@id}"
-        @$el = $(@el)
-        @preRendered = true
+      if @id
 
-      else if @className and $(@className).length > 0
-        @el = "##{@className}"
-        @$el = $(@el)
-        @preRendered = true
+        el = "##{@id}"
+
+        if $(el).length > 0
+          @el = el
+          @$el = $(@el)
+          @preRendered = true
+
+      else if @className
+
+        el = "##{@className}"
+
+        if $(el).length > 0
+          @el = el
+          @$el = $(@el)
+          @preRendered = true
 
     else
 
-      # Don't want these to fire on server-side
       @attach = ->
       @delegate = ->
       @delegateEvents = ->
@@ -44,11 +46,17 @@ module.exports = class DualView extends View
     super
 
   attach: ->
-    return false if @preRendered
+
+    if @preRendered
+
+      @trigger 'addedToDOM'
+
+      return false
 
     super
 
   # Get HTML attributes to add to el.
+
   getAttributes: ->
     attributes = {}
     attributes.id = @id if @id
@@ -83,9 +91,10 @@ module.exports = class DualView extends View
     attributes
 
   # Get the HTML for the view, including the wrapper element.
+
   getHtml: ->
 
-    html = @getInnerHtml()
+    innerHtml = @getInnerHtml()
 
     attributes = @getAttributes()
 
@@ -93,9 +102,12 @@ module.exports = class DualView extends View
       memo += " " + key + "=\"" + value + "\""
     , "")
 
-    return "<" + @tagName + attrString + ">" + html + "</" + @tagName + ">"
+    html = "<" + @tagName + attrString + ">" + innerHtml + "</" + @tagName + ">"
+
+    return html
 
   # Turn template into HTML, minus the wrapper element.
+
   getInnerHtml: ->
 
     html = @getTemplateFunction(@getTemplateData())
@@ -107,14 +119,37 @@ module.exports = class DualView extends View
 
     # Browser
     if typeof window is 'object'
-      return @_cachedTemplateFunction ||= require("templates/#{@template}")
+
+      if @template
+
+        return @_cachedTemplateFunction ||= require("templates/#{@template}")
+
+      else
+
+        return ''
 
     # Node
     else
-      source = fs.readFileSync(process.cwd() + "/app/templates/#{@template}.hbs", "utf8")
-      template = Handlebars.compile(source)
 
-      return template(context)
+      if @template
+
+        # TODO - Figure out why @getTemplateData sometimes returns undefined
+        if typeof context isnt 'object'
+          
+          if @model
+            context = @model.toJSON()
+
+          else
+            context = {}
+
+        source   = fs.readFileSync(process.cwd() + "/app/templates/#{@template}.hbs", "utf8")
+        template = Handlebars.compile(source)
+        result   = template(context)
+
+        return result
+
+      else
+        return ''
 
   render: ->
 

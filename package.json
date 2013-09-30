@@ -1,6 +1,6 @@
 {
   "name": "the-tramp",
-  "version": "0.0.2",
+  "version": "0.0.11",
   "description": "Chaplin.js on Node.js. Use it for performance boosts, SEO, re-usability.",
   "keywords": [
     "tramp",

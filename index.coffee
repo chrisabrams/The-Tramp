@@ -1,6 +1,6 @@
 module.exports = (__app, Handlebars, server, paths) ->
 
-  global.loader = require('./lib/loader')(__app, paths)
+  global.loader = require(__dirname + '/lib/loader')(__app, paths)
 
   _             = require process.cwd() + '/node_modules/underscore'
   Backbone      = loader 'backbone'
@@ -11,7 +11,7 @@ module.exports = (__app, Handlebars, server, paths) ->
 
   handlers = []
 
-  match = require(__dirname + '/lib/match')(handlers)
+  match = require(__dirname + '/src/the-tramp/lib/match')(handlers)
 
   routes = require __app + '/routes'
   routes(match)
@@ -36,7 +36,7 @@ module.exports = (__app, Handlebars, server, paths) ->
         _.each templateHelpers, (helper) ->
           require(__app + '/' + helper)(Handlebars)
 
-        generated = require(__dirname + '/lib/generate')(req, __app, handler)
+        generated = require(__dirname + '/src/the-tramp/lib/generate')(req, __app, handler)
 
         return res.render __app + '/assets/index.hbs',
           body: generated.html
