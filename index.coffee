@@ -2,12 +2,14 @@ module.exports = (__app, Handlebars, server, paths) ->
 
   global.loader = require(__dirname + '/lib/loader')(__app, paths)
 
-  _             = require process.cwd() + '/node_modules/underscore'
-  Backbone      = loader 'backbone'
-  $             = require process.cwd() + '/node_modules/jquery'
-  #$ = require 'cheerio' - Doesn't work
-  Backbone.$    = $
-  Chaplin       = loader 'chaplin'
+  _                  = require process.cwd() + '/node_modules/underscore'
+  Backbone           = loader 'backbone'
+  $                  = require 'cheerio'
+  $.prototype.unbind = $.prototype.off = -> @ # Now it won't whine.
+  Backbone.$         = $
+  _.extend $, require("underscore.deferred")
+
+  Chaplin            = loader 'chaplin'
 
   handlers = []
 
