@@ -1,12 +1,12 @@
-_                       = loader 'underscore'
-Chaplin                 = loader 'chaplin'
-Layout                  = loader 'views/layout/layout'
+_                       = require 'underscore'
+Chaplin                 = require 'chaplin'
+Layout                  = require 'views/layout/layout'
 Router                  = Chaplin.Router
-routes                  = loader 'routes'
+routes                  = require 'routes'
 
 module.exports = class DualApplication extends Chaplin.Application
 
-  initialize: ->
+  initialize: (options) ->
 
     @initMediator()
 
@@ -18,23 +18,14 @@ module.exports = class DualApplication extends Chaplin.Application
 
     @initTemplateHelpers()
     @initTemplatePartials()
-
-    @initRouter routes
-
-    @initDispatcher()
-
-    @initLayout()
-
-    @initComposer()
-
+    @initRouter options.routes, options
+    @initDispatcher options
+    @initLayout options
+    @initComposer options
     @initControllers()
-
-    @startRouting()
+    @start()
 
     @initialized = true
-
-  initComposer: (options) ->
-    #@composer = new Composer options
 
   # Override standard layout initializer
   # ------------------------------------
@@ -55,7 +46,9 @@ module.exports = class DualApplication extends Chaplin.Application
   initTemplateHelpers: ->
 
     if @templateHelpers
+      Handlebars = require 'handlebars'
+
       _.each @templateHelpers, (helper) ->
-        loader(helper)(Handlebars)
+        require(helper)(Handlebars)
 
   initTemplatePartials: ->

@@ -1,46 +1,99 @@
 _ = require 'underscore'
 $ = require 'jquery'
+Chaplin = require 'chaplin'
 
-module.exports = (req, __app, handler) ->
+class HTMLGenerator
 
-  Controller = require __app + "/controllers/#{handler.route.controller}_controller"
-  DualView = require __app + '/views/base/dual_view'
-  Layout = require __app + "/views/layout/layout"
+  constructor: (req, __app, handler) ->
 
-  html = ''
+    Controller = require __app + "/controllers/#{handler.route.controller}-controller"
+    @controller = new Controller
 
-  layout = new Layout
+    return @generateHtml(req, handler)
 
-  layoutViews = {}
+  attrToString: (view) ->
 
-  for index, prop of layout
-    
-    if prop instanceof DualView
-      layoutViews[index] = prop.getHtml()
+    attributes = view.getAttributes()
 
-  controller = new Controller
+    return _.inject(attributes, (memo, value, key) ->
+      memo += " " + key + "=\"" + value + "\""
+    , "")
 
-  if controller.beforeAction?
-    controller.beforeAction()
+  generateHtml: (req, handler) ->
 
-  action = new controller[handler.route.action](req.params)
+    @generateHtmlFromBeforeAction()
+    @generateHtmlFromAction(new @controller[handler.route.action](req.params))
 
-  getHtmlFromViews = (view) ->
+    generated =
+      html: @htmlString
 
-    viewHtml = view.getHtml()
+    generated
 
-    attrString = require(__dirname + '/attrs_to_string')(view)
+  generateHtmlFromAction: (action) ->
 
-    html = "<" + view.tagName + attrString + ">" + viewHtml + "</" + view.tagName + ">"
+    for actionIndex, actionProp of action
+      actionHtml  = ''
+      $actionHtml = null
 
-    $html = $(html)
+      if actionProp.ssRender
+        actionHtml = @getHtmlFromViews actionProp
+
+        # View is bound to region
+        if actionProp.region
+          $actionHtml = @generatejQueryHtmlString(@htmlString)
+          $actionHtml.find(@regions[actionProp.region]).append(actionHtml)
+          @htmlString = $actionHtml.html()
+
+        # View is bound to container
+        else if prop.container
+
+          $actionHtml = @generatejQueryHtmlString(@htmlString)
+          $actionHtml.find(actionProp.container)[actionProp.containerMethod](actionHtml)
+          @htmlString = $actionHtml.html()
+
+        # View did not assign itself to anything
+        else
+
+          @htmlString += @getHtmlFromViews actionProp
+
+  generateHtmlFromBeforeAction: ->
+
+    if @controller.beforeAction?
+
+      beforeAction = @controller.beforeAction()
+
+      # Go through any compositions that have been set in beforeAction() down the line
+      for compIndex, compProp of Chaplin.mediator.compositions
+
+        # This is an initial composition
+        if compProp.view?.regions
+
+          for regionIndex, region of compProp.view.regions
+            @regions[regionIndex] = region
+
+          compPropHtml = @getHtmlFromViews compProp.view
+          @htmlString += compPropHtml
+
+        # This is a partial composition to be applied to a previously set composition
+        if compProp.region
+          $compPropHtml = @generatejQueryHtmlString(@htmlString)
+          compPropHtml = @getHtmlFromViews compProp.view
+          $compPropHtml.find(@regions[compIndex]).append(compPropHtml)
+          @htmlString = $compPropHtml.html()
+
+  getHtmlFromViews: (view) ->
+
+    viewHtml   = view.getHtml()
+    attrString = @attrToString(view)
+    html       = "<" + view.tagName + attrString + ">" + viewHtml + "</" + view.tagName + ">"
+    $html      = $(html)
 
     if view.subviews.length > 0
 
       _.each view.subviews, (subview, index) ->
 
         # We only want sub-views that were intended to be rendered on the server-side
-        if subview instanceof DualView
+        if subview.ssRender
 
           subviewHtml = subview.getHtml()
 
@@ -48,12 +101,14 @@ module.exports = (req, __app, handler) ->
 
     return $html.html()
 
-  for index, prop of action
-    
-    if prop instanceof DualView
-      html += getHtmlFromViews prop
+  generatejQueryHtmlString: (string) ->
 
-  return {
-    html: html
-    layoutViews: layoutViews
-  }
+    return $('<div>' + string + '</div>')
+
+  htmlString: ''
+
+  regions: {}
+
+module.exports = (req, __app, handler) ->
+
+  return new HTMLGenerator(req, __app, handler)
