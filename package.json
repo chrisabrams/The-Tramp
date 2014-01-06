@@ -29,6 +29,7 @@
     "underscore": "1.4.4"
   },
   "devDependencies": {
+    "chai": "1.8.1",
     "coffee-script": "1.6.3",
     "expect.js": "0.2.0",
     "grunt": "0.4.1",
@@ -46,6 +47,9 @@
   },
   "engines": {
     "node": "*"
+  },
+  "scripts": {
+    "test": "cake test"
   },
   "readme": "The Tramp\n=========\n\nChaplin.js on Node.js. Use it for performance boosts, SEO, re-usability.\n\n# Project Status\nPre-Alpha.\n\nIt is currently being tested in a Chaplin app. The following work:\n\n- Controllers\n- Models (including validation w/ Backbone.validation)\n- Views & Sub-views\n- Handlebars templates & helpers\n- Chaplin routes integrated into Express' router\n- Common.js modules using Chaplin's `loader`\n\nNeed to implement:\n\n- Tests (that pass on client and server)\n- Composition\n- Collection View\n- Handlebars Partials (they might work, just haven't tested)\n- Sub-views that were not marked as DualViews (so they will be rendered on client-side on if they were a part of the initial view)\n- Require/AMD support\n\n## Why render on server-side?\n\nA typical single page app will render after the following requests (in descending order) are made:\n\n![requests](https://github.com/chrisabrams/the-tramp/raw/master/images/bon_requests.jpg)\n\nThe problem is the last request can become very large over time, especially as back-ends scale. This can result in up to or even more than one second of delay.\n\nBy rendering the *initial* page on the server-side, this can greatly reduce the initial page loading time, as the last call made in the previous diagram is now done on the server-side before the site loads.\n\n![fewer requests](https://github.com/chrisabrams/the-tramp/raw/master/images/bon_fewer_requests.jpg)\n\n## How it works\n\nAn express app is created on Node and then the Tramp is required. It's designed to be a drop in plugin, but at the moment there are a few changes that have to be made to the Chaplin app:\n\n### Loader\n\nInternally, Chaplin uses `loader` instead of the word `require` for loading modules. In order to get the modules to load in the browser & Node and not change the app's build process, it is necessary to change all instances of `require` in the app to `loader`. The behavior is the same; it is just a syntax change.\n\nYou may or may not agree with this approach; as this project aims to be an addon to Chaplin, it tries as much as possible to not introduce anything different than how Chaplin's source handles things.\n\n### Template Helpers\n\nIn `application.coffee` a new property needs to be created: `templateHelpers`. This is an array with the path to each template helper file. Each template helper file now needs to be exported.\n\n    module.exports = (Handlebars) ->\n\nThe `Handlebars` object is passed in because the Handlebars object that express uses is tied to `hbs.handlebars` and as such needs to be passed into each template when they are required.\n\n### DualViews\n\nThe Tramp introduces a new class, `DualView`. It extends Chaplin's View and adds a few pieces of logic to provide support for rendering a view on server-side. If a view is not extended from a DualView, The Tramp will skip it. The same goes for subviews that are not extending from a DualView.\n\n## Example\n\nAn example repo has been made to show how to use The Tramp. [View Example](https://github.com/chrisabrams/The-Tramp-example).\n",
   "readmeFilename": "README.md",

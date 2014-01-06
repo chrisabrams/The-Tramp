@@ -2,14 +2,13 @@ _ = require 'underscore'
 $ = require 'jquery'
 Chaplin = require 'chaplin'
 
-class HTMLGenerator
+module.exports = class HTMLGenerator
 
-  constructor: (req, __app, handler) ->
+  constructor: (options) ->
 
-    Controller = require __app + "/controllers/#{handler.route.controller}-controller"
-    @controller = new Controller
+    @appPath = options.appPath
 
-    return @generateHtml(req, handler)
+  appPath: null
 
   attrToString: (view) ->
 
@@ -19,10 +18,19 @@ class HTMLGenerator
       memo += " " + key + "=\"" + value + "\""
     , "")
 
-  generateHtml: (req, handler) ->
+  generate: (handler, req) ->
+
+    Controller  = require @appPath + "/controllers/#{handler.route.controller}"
+    @controller = new Controller
+    @handler    = handler
+    @req        = req
+
+    @generateHtml()
+
+  generateHtml: ->
 
     @generateHtmlFromBeforeAction()
-    @generateHtmlFromAction(new @controller[handler.route.action](req.params))
+    @generateHtmlFromAction(new @controller[@handler.route.action](@req.params))
 
     generated =
       html: @htmlString
@@ -108,7 +116,3 @@ class HTMLGenerator
   htmlString: ''
 
   regions: {}
-
-module.exports = (req, __app, handler) ->
-
-  return new HTMLGenerator(req, __app, handler)

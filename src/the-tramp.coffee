@@ -2,9 +2,8 @@ module.exports =
 
   initialize: (options) ->
 
-    __app = options.appPath
     @application = require __app + '/application'
-    server = options.server
+    server       = options.server
 
     _             = require 'underscore'
     Backbone      = require 'backbone'
@@ -17,7 +16,7 @@ module.exports =
     Handlebars = hbs.handlebars
 
     routes = require __app + '/routes'
-    routes(Chaplin.Router.prototype.match)
+    routes Chaplin.Router.prototype.match
 
     # Find a matching route.
     for handler in Backbone.history.handlers
@@ -37,11 +36,18 @@ module.exports =
           templateHelpers = app.templateHelpers
 
           _.each templateHelpers, (helper) ->
-            require(__app + '/' + helper)(Handlebars)
+            require(options.appPath + '/' + helper)(Handlebars)
 
-          generated = require(__dirname + '/the-tramp/lib/generate')(req, __app, handler)
+          Generator = require(__dirname + '/the-tramp/lib/generate')
 
-          return res.render __app + '/assets/index.hbs',
+          generator = new Generator
+            appPath: options.appPath
+            handler: handler
+            req:     req
+
+          generated = generator.generate(req, handler)
+
+          return res.render options.appPath + '/assets/index.hbs',
             body: generated.html
 
       ) handler
