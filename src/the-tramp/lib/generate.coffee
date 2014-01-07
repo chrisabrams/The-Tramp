@@ -18,6 +18,17 @@ module.exports = class HTMLGenerator
       memo += " " + key + "=\"" + value + "\""
     , "")
 
+  constructjQueryHtmlString: (string) ->
+
+    return $(@constructTag('div', null, string))
+
+  constructTag: (tag, attrs, string) ->
+    attrs  = attrs or ''
+    string = string or ''
+    tag    = tag or 'div'
+
+    return "<#{tag}#{attrs}>#{string}</#{tag}>"
+
   generate: (handler, req) ->
 
     Controller  = require @appPath + "/controllers/#{handler.route.controller}"
@@ -25,7 +36,7 @@ module.exports = class HTMLGenerator
     @handler    = handler
     @req        = req
 
-    @generateHtml()
+    return @generateHtml()
 
   generateHtml: ->
 
@@ -35,7 +46,7 @@ module.exports = class HTMLGenerator
     generated =
       html: @htmlString
 
-    generated
+    return generated
 
   generateHtmlFromAction: (action) ->
 
@@ -48,14 +59,14 @@ module.exports = class HTMLGenerator
 
         # View is bound to region
         if actionProp.region
-          $actionHtml = @generatejQueryHtmlString(@htmlString)
+          $actionHtml = @constructjQueryHtmlString(@htmlString)
           $actionHtml.find(@regions[actionProp.region]).append(actionHtml)
           @htmlString = $actionHtml.html()
 
         # View is bound to container
         else if prop.container
 
-          $actionHtml = @generatejQueryHtmlString(@htmlString)
+          $actionHtml = @cosntructjQueryHtmlString(@htmlString)
           $actionHtml.find(actionProp.container)[actionProp.containerMethod](actionHtml)
           @htmlString = $actionHtml.html()
 
@@ -84,7 +95,7 @@ module.exports = class HTMLGenerator
 
         # This is a partial composition to be applied to a previously set composition
         if compProp.region
-          $compPropHtml = @generatejQueryHtmlString(@htmlString)
+          $compPropHtml = @constructjQueryHtmlString(@htmlString)
           compPropHtml = @getHtmlFromViews compProp.view
           $compPropHtml.find(@regions[compIndex]).append(compPropHtml)
           @htmlString = $compPropHtml.html()
@@ -92,10 +103,11 @@ module.exports = class HTMLGenerator
   getHtmlFromViews: (view) ->
 
     viewHtml   = view.getHtml()
-    attrString = @attrToString(view)
-    html       = "<" + view.tagName + attrString + ">" + viewHtml + "</" + view.tagName + ">"
+    attrString = @attrToString view
+    html       = @constructTag view.tagName, attrString, viewHtml
     $html      = $(html)
 
+    # This logic should be recursive as sub-views can have sub-views
     if view.subviews.length > 0
 
       _.each view.subviews, (subview, index) ->
@@ -108,10 +120,6 @@ module.exports = class HTMLGenerator
           $html.find(subview.container)[subview.containerMethod](subviewHtml)
 
     return $html.html()
-
-  generatejQueryHtmlString: (string) ->
-
-    return $('<div>' + string + '</div>')
 
   htmlString: ''
 
