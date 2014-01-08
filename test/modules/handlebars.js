@@ -1,0 +1,89 @@
+/*
+ * grunt-commonjs-handlebars
+ * https://github.com/avos/grunt-commonjs-handlebars
+ *
+ * Copyright (c) 2013 Team Delicious, AVOS Systems Inc., Tim Branyen, contributors
+ * Licensed under the MIT license.
+ */
+
+module.exports = function(grunt) {
+
+  var _ = grunt.util._;
+  var helpers = require('grunt-lib-contrib').init(grunt);
+
+  // filename conversion for templates
+  var defaultProcessName = function(name) { return name; };
+
+  // filename conversion for partials
+  var defaultProcessPartialName = function(filePath) {
+    var pieces = _.last(filePath.split('/')).split('.');
+    var name   = _(pieces).without(_.last(pieces)).join('.'); // strips file extension
+    return name.substr(1, name.length);                       // strips leading _ character
+  };
+
+  grunt.registerMultiTask('handlebars', 'Compile handlebars templates and partials.', function() {
+    var options = this.options({
+      separator: grunt.util.linefeed + grunt.util.linefeed,
+      wrapped: true
+    });
+    grunt.verbose.writeflags(options, 'Options');
+
+    // assign regex for partial detection
+    var isPartial = options.partialRegex || /^_/;
+
+    // assign filename transformation functions
+    var processName = options.processName || defaultProcessName;
+    var processPartialName = options.processPartialName || defaultProcessPartialName;
+
+    this.files.forEach(function(f) {
+      var partials = [];
+      var templates = [];
+
+      // iterate files, processing partials and templates separately
+      f.src.filter(function(filepath) {
+        // Warn on and remove invalid source files (if nonull was set).
+        if (!grunt.file.exists(filepath)) {
+          grunt.log.warn('Source file "' + filepath + '" not found.');
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .forEach(function(filepath) {
+        var src = grunt.file.read(filepath);
+        var compiled, filename;
+        try {
+          compiled = require('handlebars').precompile(src);
+          // if configured to, wrap template in Handlebars.template call
+          if (options.wrapped) {
+            compiled = 'Handlebars.template('+compiled+')\n';
+          }
+        } catch (e) {
+          grunt.log.error(e);
+          grunt.fail.warn('Handlebars failed to compile '+filepath+'.');
+        }
+
+        // register partial or add template to namespace
+        if (isPartial.test(_.last(filepath.split('/')))) {
+          filename = processPartialName(filepath);
+          partials.push('Handlebars.registerPartial('+JSON.stringify(filename)+', '+compiled+');');
+        } else {
+          filename = processName(filepath);
+          templates.push("Handlebars = require('hbsfy/runtime')")
+          templates.push('module.exports = '+compiled+';\n');
+        }
+      });
+
+      var output = partials.concat(templates);
+      if (output.length < 1) {
+        grunt.log.warn('Destination not written because compiled files were empty.');
+      } else {
+
+        grunt.file.write(f.dest, output.join(grunt.util.normalizelf(options.separator)));
+        grunt.log.writeln('File "' + f.dest + '" created.');
+      }
+    });
+
+  });
+
+};

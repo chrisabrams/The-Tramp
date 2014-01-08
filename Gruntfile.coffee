@@ -35,6 +35,11 @@ module.exports = (grunt) ->
         files:
           'test/public/js/the-tramp.js': '<%= jsFiles %>'
 
+    handlebars:
+      dist:
+        files:
+          "test/app/templates/home.js": "test/app/templates/home.hbs"
+
     livereload:
       options:
         base: 'test',
@@ -77,7 +82,7 @@ module.exports = (grunt) ->
         options:
           debounceDelay: 250
 
-  grunt.loadNpmTasks 'grunt-commonjs'
+  grunt.loadNpmTasks 'test/modules/handlebars'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-concat'
@@ -86,13 +91,3 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-livereload'
   grunt.loadNpmTasks 'grunt-mocha'
-
-  grunt.registerTask 'scripts', ['coffee:dist', 'commonjs']
-  grunt.registerTask 'prep',    ['scripts']
-  grunt.registerTask 'b',       ['clean:dist', 'prep', 'concat:devJs']
-  grunt.registerTask 'm',       ['clean:dist', 'prep', 'uglify:dist']
-
-  #grunt.registerTask 't',       ['clean:test', 'prep', 'coffee:test', 'uglify:test', 'mocha']
-  grunt.registerTask 't',       ['clean:test', 'prep', 'concat:devJs', 'coffee:test']
-  
-  grunt.registerTask 'w',       ['t', 'livereload', 'watch']

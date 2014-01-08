@@ -21,3 +21,15 @@ describe 'View - Unit', ->
     expect(html).to.be.a 'string'
 
     done()
+
+  it 'should be able to get html from a view with a template', (done) ->
+
+    View = require '../app/views/bare_wt'
+
+    view = new View
+
+    html = view.getHtml()
+
+    expect(html).to.be.a 'string'
+
+    done()
