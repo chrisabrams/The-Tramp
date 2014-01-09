@@ -1,7 +1,6 @@
 _          = require 'underscore'
 Chaplin    = require 'chaplin'
 Handlebars = require 'hbsfy/runtime'
-require '../../lib/view-helper'
 
 module.exports = class View extends Chaplin.View
   preRendered: false
@@ -63,13 +62,12 @@ module.exports = class View extends Chaplin.View
 
         attributes["data-" + key] = _.escape(value) if not _.isObject(value) and not _.include(@nonAttributeOptions, key)
 
-    attributes
+    return attributes
 
   # Get the HTML for the view, including the wrapper element.
   getHtml: ->
 
-    innerHtml = @getInnerHtml()
-
+    innerHtml  = @getTemplateFunction()
     attributes = @getAttributes()
 
     attrString = _.inject(attributes, (memo, value, key) ->
@@ -80,16 +78,28 @@ module.exports = class View extends Chaplin.View
 
     return html
 
-  # Turn template into HTML, minus the wrapper element.
-  getInnerHtml: ->
+  getTemplateData: ->
+    utils = require('chaplin').utils
 
-    html = @getTemplateFunction(@getTemplateData())
+    data = null
 
-    return html
+    if @model
+      data = @model.toJSON()
 
-  # Precompiled templates function initializer.
-  getTemplateFunction: (context) ->
-    @template() if @template
+    else if @collection
+      data = @collection.toJSON()
+
+    else
+      data = {}
+
+    return data
+
+  # Precompiled templates
+  getTemplateFunction: ->
+    
+    if @template
+      context = @getTemplateData()
+      return @template context
 
   render: ->
 

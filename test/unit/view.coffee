@@ -1,3 +1,7 @@
+$          = require 'jquery'
+Backbone   = require 'backbone'
+Backbone.$ = $
+
 describe 'View - Unit', ->
 
   it 'should be able to initialize', (done) ->
@@ -7,6 +11,51 @@ describe 'View - Unit', ->
     view = new View
 
     expect(view).to.be.an 'object'
+    expect(view.ssRender).to.be.a 'boolean'
+    expect(view.ssRender).to.equal true
+
+    done()
+
+  it 'should be able to get template data', (done) ->
+
+    Home = require '../app/models/home'
+    View = require '../app/views/bare'
+
+    view = new View
+      model: new Home
+
+    data = view.getTemplateData()
+
+    expect(data).to.be.an 'object'
+    expect(data.foo).to.be.a 'string'
+    expect(data.foo).to.equal 'bar'
+
+    done()
+
+  it 'should be able to compile a template with data', (done) ->
+
+    Home = require '../app/models/home'
+    View = require '../app/views/bare_wt'
+
+    view = new View
+      model: new Home
+
+    template = view.getTemplateFunction()
+
+    expect(template).to.be.a 'string'
+    expect(template).to.equal '<div id="bar"></div>\n'
+
+    done()
+
+  it 'should not be able to get template html', (done) ->
+
+    View = require '../app/views/bare'
+
+    view = new View
+
+    templateHtml = view.getTemplateFunction()
+
+    expect(templateHtml).to.equal undefined
 
     done()
 

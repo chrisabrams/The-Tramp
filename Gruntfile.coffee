@@ -82,7 +82,7 @@ module.exports = (grunt) ->
         options:
           debounceDelay: 250
 
-  grunt.loadNpmTasks 'test/modules/handlebars'
+  require('./test/modules/handlebars')(grunt)
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-concat'

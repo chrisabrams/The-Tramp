@@ -69,7 +69,7 @@ module.exports = function(grunt) {
           partials.push('Handlebars.registerPartial('+JSON.stringify(filename)+', '+compiled+');');
         } else {
           filename = processName(filepath);
-          templates.push("Handlebars = require('hbsfy/runtime')")
+          templates.push("Handlebars = require('handlebars')")
           templates.push('module.exports = '+compiled+';\n');
         }
       });
