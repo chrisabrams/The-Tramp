@@ -11,6 +11,11 @@ describe 'View - Unit', ->
     view = new View
 
     expect(view).to.be.an 'object'
+    expect(view.attributesToString).to.be.a 'function'
+    expect(view.constructTag).to.be.a 'function'
+    expect(view.getAttributes).to.be.a 'function'
+    expect(view.getHtml).to.be.a 'function'
+    expect(view.getTemplateData).to.be.a 'function'
     expect(view.ssRender).to.be.a 'boolean'
     expect(view.ssRender).to.equal true
 

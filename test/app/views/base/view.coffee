@@ -1,8 +1,13 @@
 _          = require 'underscore'
 Chaplin    = require 'chaplin'
 Handlebars = require 'hbsfy/runtime'
+ViewHelper = require process.cwd() + '/src/the-tramp/lib/helpers/view' # This obviously will change once this view is cleaned up for client-side
 
 module.exports = class View extends Chaplin.View
+  
+  if typeof window is 'undefined'
+    _.extend @prototype, ViewHelper
+
   preRendered: false
   ssRender: true
 
@@ -48,53 +53,6 @@ module.exports = class View extends Chaplin.View
 
     super
 
-  # Get HTML attributes to add to el.
-  getAttributes: ->
-    attributes = {}
-    attributes.id = @id if @id
-    attributes["class"] = @className if @className
-    
-    # Add model & collection meta data from options,
-    # as well as any non-object option values.
-    _.each @options, (value, key) ->
-
-      if value?
-
-        attributes["data-" + key] = _.escape(value) if not _.isObject(value) and not _.include(@nonAttributeOptions, key)
-
-    return attributes
-
-  # Get the HTML for the view, including the wrapper element.
-  getHtml: ->
-
-    innerHtml  = @getTemplateFunction()
-    attributes = @getAttributes()
-
-    attrString = _.inject(attributes, (memo, value, key) ->
-      memo += " " + key + "=\"" + value + "\""
-    , "")
-
-    html = "<" + @tagName + attrString + ">" + innerHtml + "</" + @tagName + ">"
-
-    return html
-
-  getTemplateData: ->
-    utils = require('chaplin').utils
-
-    data = null
-
-    if @model
-      data = @model.toJSON()
-
-    else if @collection
-      data = @collection.toJSON()
-
-    else
-      data = {}
-
-    return data
-
-  # Precompiled templates
   getTemplateFunction: ->
     
     if @template

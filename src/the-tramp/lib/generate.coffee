@@ -1,33 +1,16 @@
-_ = require 'underscore'
-$ = require 'jquery'
-Chaplin = require 'chaplin'
+_          = require 'underscore'
+$          = require 'jquery'
+Chaplin    = require 'chaplin'
+ViewHelper = require process.cwd() + '/src/the-tramp/lib/helpers/view'
 
 module.exports = class HTMLGenerator
+  _.extend @prototype, ViewHelper
 
   constructor: (options) ->
 
     @appPath = options.appPath
 
   appPath: null
-
-  attrToString: (view) ->
-
-    attributes = view.getAttributes()
-
-    return _.inject(attributes, (memo, value, key) ->
-      memo += " " + key + "=\"" + value + "\""
-    , "")
-
-  constructjQueryHtmlString: (string) ->
-
-    return $(@constructTag('div', null, string))
-
-  constructTag: (tag, attrs, string) ->
-    attrs  = attrs or ''
-    string = string or ''
-    tag    = tag or 'div'
-
-    return "<#{tag}#{attrs}>#{string}</#{tag}>"
 
   generate: (handler, req) ->
 
@@ -59,14 +42,14 @@ module.exports = class HTMLGenerator
 
         # View is bound to region
         if actionProp.region
-          $actionHtml = @constructjQueryHtmlString(@htmlString)
+          $actionHtml = @constructjQueryObject(@htmlString)
           $actionHtml.find(@regions[actionProp.region]).append(actionHtml)
           @htmlString = $actionHtml.html()
 
         # View is bound to container
         else if prop.container
 
-          $actionHtml = @cosntructjQueryHtmlString(@htmlString)
+          $actionHtml = @cosntructjQueryObject(@htmlString)
           $actionHtml.find(actionProp.container)[actionProp.containerMethod](actionHtml)
           @htmlString = $actionHtml.html()
 
@@ -95,7 +78,7 @@ module.exports = class HTMLGenerator
 
         # This is a partial composition to be applied to a previously set composition
         if compProp.region
-          $compPropHtml = @constructjQueryHtmlString(@htmlString)
+          $compPropHtml = @constructjQueryObject(@htmlString)
           compPropHtml = @getHtmlFromViews compProp.view
           $compPropHtml.find(@regions[compIndex]).append(compPropHtml)
           @htmlString = $compPropHtml.html()
@@ -103,7 +86,7 @@ module.exports = class HTMLGenerator
   getHtmlFromViews: (view) ->
 
     viewHtml   = view.getHtml()
-    attrString = @attrToString view
+    attrString = @attributesToString view
     html       = @constructTag view.tagName, attrString, viewHtml
     $html      = $(html)
 

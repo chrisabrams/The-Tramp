@@ -35,7 +35,7 @@ describe 'HTML Generator - Unit', ->
 
     view = new View
 
-    attributesAsString = generator.attrToString view
+    attributesAsString = generator.attributesToString view
 
     expect(attributesAsString).to.be.a 'string'
 
@@ -46,7 +46,7 @@ describe 'HTML Generator - Unit', ->
     generator = new Generator
       appPath: process.cwd() + '/test/app'
 
-    html = generator.constructjQueryHtmlString('hello').html()
+    html = generator.constructjQueryObject('hello').html()
 
     expect(html).to.be.a 'string'
     expect(html).to.equal 'hello'
@@ -62,6 +62,38 @@ describe 'HTML Generator - Unit', ->
 
     view = new View
 
-    generator.getHtmlFromViews
+    html = generator.getHtmlFromViews(view)
+
+    expect(html).to.be.a 'string'
+
+    done()
+
+  it 'should be able to get the html of a view with a subview', (done) ->
+
+    generator = new Generator
+      appPath: process.cwd() + '/test/app'
+
+    View = require '../app/views/bare_wsv'
+
+    view = new View
+
+    html = generator.getHtmlFromViews(view)
+
+    expect(html).to.be.a 'string'
+
+    done()
+
+  it 'should be able to get the html of a view that has a template and a subview', (done) ->
+
+    generator = new Generator
+      appPath: process.cwd() + '/test/app'
+
+    View = require '../app/views/bare_wtsv'
+
+    view = new View
+
+    html = generator.getHtmlFromViews(view)
+
+    expect(html).to.be.a 'string'
 
     done()
