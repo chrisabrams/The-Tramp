@@ -11,6 +11,11 @@ describe 'HTML Generator - Unit', ->
       appPath: process.cwd() + '/test/app'
 
     expect(generator, 'generator').to.be.an 'object'
+    expect(generator.attributesToString).to.be.a 'function'
+    expect(generator.constructTag).to.be.a 'function'
+    expect(generator.getAttributes).to.be.a 'function'
+    expect(generator.getHtml).to.be.a 'function'
+    expect(generator.getTemplateData).to.be.a 'function'
 
     done()
 
