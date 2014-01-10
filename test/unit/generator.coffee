@@ -67,22 +67,7 @@ describe 'HTML Generator - Unit', ->
 
     view = new View
 
-    html = generator.getHtmlFromViews(view)
-
-    expect(html).to.be.a 'string'
-
-    done()
-
-  it 'should be able to get the html of a view with a subview', (done) ->
-
-    generator = new Generator
-      appPath: process.cwd() + '/test/app'
-
-    View = require '../app/views/bare_wsv'
-
-    view = new View
-
-    html = generator.getHtmlFromViews(view)
+    html = generator.getHtml view
 
     expect(html).to.be.a 'string'
 
@@ -93,12 +78,32 @@ describe 'HTML Generator - Unit', ->
     generator = new Generator
       appPath: process.cwd() + '/test/app'
 
-    View = require '../app/views/bare_wtsv'
+    View = require '../app/views/subviews/d1'
 
     view = new View
 
-    html = generator.getHtmlFromViews(view)
+    html = generator.getHtml view
+
+    getTextBetweenChars = (string, char1, char2) ->
+
+      start  = string.indexOf(char1) + 1
+      end    = string.indexOf(char2, start)
+      result = string.substring start, end
+
+    d5html = getTextBetweenChars html, 'd5', 'd6'
 
     expect(html).to.be.a 'string'
+    expect(html.indexOf('id="d1"')).to.be.above(0)
+    expect(html.indexOf('id="d2"')).to.be.above(0)
+    expect(html.indexOf('id="d3"')).to.be.above(0)
+    expect(html.indexOf('id="d4"')).to.be.above(0)
+    expect(html.indexOf('id="d5"')).to.be.above(0)
+    expect(html.indexOf('id="d6"')).to.be.above(0)
+    expect(html.indexOf('id="d7"')).to.be.above(0)
+    expect(html.indexOf('id="d8"')).to.be.above(0)
+    expect(html.indexOf('id="d9"')).to.be.above(0)
+    expect(d5html.indexOf('id="d7"')).to.be.above(0)
+    expect(d5html.indexOf('id="d8"')).to.be.above(0)
+    expect(d5html.indexOf('id="d9"')).to.be.above(0)
 
     done()

@@ -4,11 +4,9 @@ $ = require 'jquery'
 module.exports =
 
   # Convert attributes on a view element to a string
-  attributesToString: (view) ->
+  attributesToString: ->
 
-    view = view or @ # Let this be used directly on a view or pass in a view
-
-    attributes = view.getAttributes()
+    attributes = @getAttributes()
 
     return _.inject(attributes, (memo, value, key) ->
       memo += " " + key + "=\"" + value + "\""
@@ -45,12 +43,51 @@ module.exports =
     return attributes
 
   # Get the HTML for the view, including the wrapper element.
-  getHtml: ->
+  getHtml: (view, $html) ->
 
-    innerHtml  = @getTemplateFunction()
-    attributes = @attributesToString()
+    view = view or @
 
-    return @constructTag @tagName, attributes, innerHtml
+    # We only want views that were intended to be rendered on the server-side
+    if view.ssRender
+
+      innerHtml  = view.getTemplateFunction()
+      attributes = view.attributesToString()
+      tagName    = view.tagname
+
+      html       = @constructTag tagName, attributes, innerHtml
+
+      # This is a child view, it's container should be available from the parent's html
+      if $html
+
+        if view.container
+
+          $html.find(view.container)[view.containerMethod](html)
+
+        @loopThroughSubViews view, $html
+
+      # First time through this wont exist as its the top level view
+      else
+
+        unless $html
+          $html = @constructjQueryObject html
+
+        @loopThroughSubViews view, $html
+
+        resultHtml = $html.html()
+
+        $html = null
+
+        return resultHtml
+
+    else
+
+      return ''
+
+  loopThroughSubViews: (view, $html) ->
+
+    _.each view.subviews, (subview, index) ->
+
+      view.getHtml subview, $html
 
   getTemplateData: ->
 
@@ -68,3 +105,9 @@ module.exports =
       data = {}
 
     return data
+
+  getTemplateFunction: ->
+    
+    if @template
+      context = @getTemplateData()
+      return @template context

@@ -53,12 +53,6 @@ module.exports = class View extends Chaplin.View
 
     super
 
-  getTemplateFunction: ->
-    
-    if @template
-      context = @getTemplateData()
-      return @template context
-
   render: ->
 
     # TODO - Ideally it would be nice to not render it the first time since that was done on Node

@@ -85,24 +85,7 @@ module.exports = class HTMLGenerator
 
   getHtmlFromViews: (view) ->
 
-    viewHtml   = view.getHtml()
-    attrString = @attributesToString view
-    html       = @constructTag view.tagName, attrString, viewHtml
-    $html      = $(html)
-
-    # This logic should be recursive as sub-views can have sub-views
-    if view.subviews.length > 0
-
-      _.each view.subviews, (subview, index) ->
-
-        # We only want sub-views that were intended to be rendered on the server-side
-        if subview.ssRender
-
-          subviewHtml = subview.getHtml()
-
-          $html.find(subview.container)[subview.containerMethod](subviewHtml)
-
-    return $html.html()
+    return view.getHtml()
 
   htmlString: ''
 

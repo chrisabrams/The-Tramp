@@ -1,4 +1,4 @@
-BareView = require './bare'
+BareDView = require './bare_d'
 View     = require './base/view'
 
 module.exports = class BareWTView extends View
@@ -10,4 +10,4 @@ module.exports = class BareWTView extends View
   initialize: ->
     super
 
-    @subview('bare', new BareView)
+    @subview('bare_d', new BareDView)
