@@ -4,7 +4,7 @@ The Tramp
 Chaplin.js on Node.js. Use it for performance boosts, SEO, re-usability.
 
 # Project Status: Alpha
-Use at your own risk; API will change.
+[![Build Status](https://secure.travis-ci.org/chrisabrams/The-Tramp.png?branch=master)](https://travis-ci.org/chrisabrams/The-Tramp)
 
 It is currently being tested in a Chaplin app. The following work:
 
