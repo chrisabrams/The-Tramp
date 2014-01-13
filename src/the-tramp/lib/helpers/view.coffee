@@ -3,6 +3,8 @@ $ = require 'jquery'
 
 module.exports =
 
+  ssRender: true
+
   # Convert attributes on a view element to a string
   attributesToString: ->
 
@@ -45,7 +47,11 @@ module.exports =
   # Get the HTML for the view, including the wrapper element.
   getHtml: (view, $html) ->
 
-    view = view or @
+    if typeof view is 'object' and view isnt null
+      view = view
+
+    else
+      view = @
 
     # We only want views that were intended to be rendered on the server-side
     if view.ssRender
@@ -59,11 +65,19 @@ module.exports =
       # This is a child view, it's container should be available from the parent's html
       if $html
 
-        if view.container
+        container = null
+        containerMethod = null
+        
+        if view.listSelector
+          container = view.listSelector
+          containerMethod = 'append'
 
-          $html.find(view.container)[view.containerMethod](html)
+        else if view.container
+          container = view.container
+          containerMethod = view.containerMethod
 
-        @loopThroughSubViews view, $html
+        if container
+          $html.find(container)[containerMethod](html)
 
       # First time through this wont exist as its the top level view
       else
@@ -71,23 +85,37 @@ module.exports =
         unless $html
           $html = @constructjQueryObject html
 
-        @loopThroughSubViews view, $html
+      @loopThroughChildViews view, $html
 
-        resultHtml = $html.html()
+      resultHtml = $html.html()
 
-        $html = null
-
-        return resultHtml
+      return resultHtml
 
     else
 
       return ''
 
-  loopThroughSubViews: (view, $html) ->
+  loopThroughChildViews: (view, $html) ->
 
-    _.each view.subviews, (subview, index) ->
+    # This is a collection view
+    if @renderAllItems and @collection
 
-      view.getHtml subview, $html
+      _.each @collection.models, (model, index) =>
+
+        itemView = new @itemView
+          model: model
+
+        if @listSelector
+          itemView.listSelector = @listSelector
+
+        itemView.getHtml null, $html
+
+    # This is a regular view
+    else
+
+      _.each view.subviews, (subview, index) ->
+
+        view.getHtml subview, $html
 
   getTemplateData: ->
 

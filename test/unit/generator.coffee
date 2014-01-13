@@ -2,6 +2,7 @@ $          = require 'jquery'
 Backbone   = require 'backbone'
 Backbone.$ = $
 Generator  = require '../../src/the-tramp/lib/generate'
+helper     = require '../lib/helper'
 
 describe 'HTML Generator - Unit', ->
 
@@ -84,13 +85,7 @@ describe 'HTML Generator - Unit', ->
 
     html = generator.getHtml view
 
-    getTextBetweenChars = (string, char1, char2) ->
-
-      start  = string.indexOf(char1) + 1
-      end    = string.indexOf(char2, start)
-      result = string.substring start, end
-
-    d5html = getTextBetweenChars html, 'd5', 'd6'
+    d5html = helper.getTextBetweenChars html, 'd5', 'd6'
 
     expect(html).to.be.a 'string'
     expect(html.indexOf('id="d1"')).to.be.above(0)

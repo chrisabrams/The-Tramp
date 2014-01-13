@@ -48,7 +48,7 @@ describe 'View - Unit', ->
     template = view.getTemplateFunction()
 
     expect(template).to.be.a 'string'
-    expect(template).to.equal '<div id="bar"></div>\n'
+    expect(template).to.equal '<ul id="bar"></ul>\n'
 
     done()
 

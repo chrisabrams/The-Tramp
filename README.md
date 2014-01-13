@@ -10,13 +10,12 @@ It is currently being tested in a Chaplin app. The following work:
 
 - Controllers
 - Models (including validation w/ Backbone.validation)
-- Views, Sub-views, and Composition Views
+- Views, Sub-views, CollectionViews and Composition Views
 - Handlebars templates, partials, and helpers
 - Chaplin routes integrated into Express' router
 
 Need to implement:
 
-- CollectionView
 - Require/AMD support
 
 ## Why render on server-side?

@@ -1,6 +1,5 @@
 _          = require 'underscore'
 Chaplin    = require 'chaplin'
-Handlebars = require 'hbsfy/runtime'
 ViewHelper = require process.cwd() + '/src/the-tramp/lib/helpers/view' # This obviously will change once this view is cleaned up for client-side
 
 module.exports = class View extends Chaplin.View
@@ -9,7 +8,6 @@ module.exports = class View extends Chaplin.View
     _.extend @prototype, ViewHelper
 
   preRendered: false
-  ssRender: true
 
   initialize: ->
 
