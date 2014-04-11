@@ -1,6 +1,8 @@
 _          = require 'underscore'
 $          = require 'jquery'
 Chaplin    = require 'chaplin'
+fs         = require 'fs'
+helper     = require './helpers/helper'
 ViewHelper = require process.cwd() + '/src/the-tramp/lib/helpers/view'
 
 module.exports = class HTMLGenerator
@@ -9,84 +11,84 @@ module.exports = class HTMLGenerator
   constructor: (options) ->
 
     @appPath = options.appPath
+    @scripts = []
 
   appPath: null
 
-  generate: (handler, req) ->
+  generate: (options) ->
 
-    Controller  = require @appPath + "/controllers/#{handler.route.controller}"
+    @handler    = options.handler or {}
+    @req        = options.req or {}
+
+    Controller  = require @appPath + "/controllers/#{@handler.route.controller}"
     @controller = new Controller
-    @handler    = handler
-    @req        = req
 
     return @generateHtml()
 
   generateHtml: ->
 
+    @$body = @constructjQueryObject('<body></body>')
+
     @generateHtmlFromBeforeAction()
     @generateHtmlFromAction(new @controller[@handler.route.action](@req.params))
 
-    generated =
-      html: @htmlString
+    body = helper.getTextBetweenChars @$body.html(), '<body>', '</body>'
+    body = body.replace 'body>', ''
 
-    return generated
+    console.error "body", body
 
-  generateHtmlFromAction: (action) ->
+    return body
 
-    for actionIndex, actionProp of action
-      actionHtml  = ''
-      $actionHtml = null
+  generateHtmlFromAction: (view) ->
 
-      if actionProp.ssRender
-        actionHtml = @getHtmlFromViews actionProp
+    if view.ssRender
 
-        # View is bound to region
-        if actionProp.region
-          $actionHtml = @constructjQueryObject(@htmlString)
-          $actionHtml.find(@regions[actionProp.region]).append(actionHtml)
-          @htmlString = $actionHtml.html()
+      viewHtml = @getHtmlFromViews view
 
-        # View is bound to container
-        else if prop.container
+      # View is bound to region
+      if view.region
 
-          $actionHtml = @cosntructjQueryObject(@htmlString)
-          $actionHtml.find(actionProp.container)[actionProp.containerMethod](actionHtml)
-          @htmlString = $actionHtml.html()
+        @$body.find(Chaplin.mediator.regions[view.region]).append(viewHtml)
 
-        # View did not assign itself to anything
-        else
+      # View is bound to container
+      else if view.container
 
-          @htmlString += @getHtmlFromViews actionProp
+        @$body.find(view.container).append(viewHtml)
+
+      # View did not assign itself to anything
+      else
+        console.error "e -> 3"
 
   generateHtmlFromBeforeAction: ->
 
-    if @controller.beforeAction?
+    if @controller? and @controller.beforeAction?
 
       beforeAction = @controller.beforeAction()
 
-      # Go through any compositions that have been set in beforeAction() down the line
-      for compIndex, compProp of Chaplin.mediator.compositions
+      for index, view of Chaplin.mediator.compositions
 
-        # This is an initial composition
-        if compProp.view?.regions
+        if view.regions
 
-          for regionIndex, region of compProp.view.regions
-            @regions[regionIndex] = region
+          viewHtml = view.getHtml()
 
-          compPropHtml = @getHtmlFromViews compProp.view
-          @htmlString += compPropHtml
+          @$body.find(view.container).append(viewHtml)
 
-        # This is a partial composition to be applied to a previously set composition
-        if compProp.region
-          $compPropHtml = @constructjQueryObject(@htmlString)
-          compPropHtml = @getHtmlFromViews compProp.view
-          $compPropHtml.find(@regions[compIndex]).append(compPropHtml)
-          @htmlString = $compPropHtml.html()
+        if view.region
+
+          viewHtml = view.getHtml()
+
+          container = Chaplin.mediator.regions[view.region]
+
+          @$body.find(container)[view.containerMethod](viewHtml)
 
   getHtmlFromViews: (view) ->
 
     return view.getHtml()
 
-  htmlString: ''
+  getScriptTagsFromBody: (body) ->
 
-  regions: {}
+    re        = /<script\b[^>]*>([\s\S]*?)<\/script>/gm
+    found     = undefined
+
+    while found = re.exec(body)
+      @scripts.push(found[0])

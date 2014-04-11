@@ -1,3 +1,7 @@
+$          = require 'jquery'
+Backbone   = require 'backbone'
+Backbone.$ = $
+
 Generator = require '../../src/the-tramp/lib/generate'
 
 describe 'HTML Generator - Functional', ->
@@ -15,6 +19,10 @@ describe 'HTML Generator - Functional', ->
     generator = new Generator
       appPath: process.cwd() + '/test/app'
 
-    generator.generate
-      handler: handler
-      req:     req
+    body = generator.generate
+      handler: handler # backbone handler of route
+      req:     req     # express request
+
+    expect(body).to.be.a 'string'
+
+    done()

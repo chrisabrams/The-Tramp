@@ -39,6 +39,7 @@ module.exports = (grunt) ->
       dist:
         files:
           "test/app/templates/home.js": "test/app/templates/home.hbs"
+          "test/app/templates/site.js": "test/app/templates/site.hbs"
 
     livereload:
       options:

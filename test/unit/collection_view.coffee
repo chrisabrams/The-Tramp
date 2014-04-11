@@ -59,6 +59,8 @@ describe 'CollectionView - Unit', ->
 
     html = collectionView.getHtml()
 
+    console.error "error 3 -> \n", html
+
     between = helper.getTextBetweenChars html, '<ul', '/ul'
 
     expect(html).to.be.a 'string'

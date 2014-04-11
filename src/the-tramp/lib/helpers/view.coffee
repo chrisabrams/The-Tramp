@@ -139,3 +139,9 @@ module.exports =
     if @template
       context = @getTemplateData()
       return @template context
+
+  registerRegion: ->
+
+  unregisterRegion: ->
+
+  unregisterAllRegions: ->

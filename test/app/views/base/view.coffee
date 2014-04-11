@@ -1,3 +1,4 @@
+$          = require 'jquery'
 _          = require 'underscore'
 Chaplin    = require 'chaplin'
 ViewHelper = require process.cwd() + '/src/the-tramp/lib/helpers/view' # This obviously will change once this view is cleaned up for client-side
@@ -48,12 +49,5 @@ module.exports = class View extends Chaplin.View
       @trigger 'addedToDOM'
 
       return false
-
-    super
-
-  render: ->
-
-    # TODO - Ideally it would be nice to not render it the first time since that was done on Node
-    #return false if @preRendered
 
     super
